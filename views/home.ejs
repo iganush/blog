@@ -1,14 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-   <%- include('./partials/head') %>
-    <title>Homepage</title>
-</head>
-<body>
-    
-     <%- include('./partials/nav') %>
-<%= JSON.stringify(user) %>
+<div class="container mt-4">
+  <div class="row g-4">
+    <% if (blogs && blogs.length > 0) { %>
+      <% blogs.forEach(blog => { %>
 
-    <%- include('./partials/scripts') %>
-</body>
-</html>
+        <div class="col-md-4 col-sm-6">
+          <div class="card h-100 shadow-sm">
+
+            <img
+              src="<%= blog.coverImageURL || '/images/default.png' %>"
+              class="card-img-top"
+              style="height: 200px; object-fit: cover;"
+              alt="Blog image"
+            >
+
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title"><%= blog.title %></h5>
+
+              <p class="card-text text-muted flex-grow-1">
+                <%= blog.body ? blog.body.substring(0, 120) : "" %>...
+              </p>
+
+              <a
+                href="/blog/<%= blog._id %>"
+                class="btn btn-primary "
+              >
+               View
+              </a>
+            </div>
+
+          </div>
+        </div>
+
+      <% }) %>
+    <% } else { %>
+      <div class="col-12 text-center">
+        <p class="text-muted">No blogs found</p>
+      </div>
+    <% } %>
+  </div>
+</div>
