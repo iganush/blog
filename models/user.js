@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { createHmac, randomBytes } from "crypto";
+import { createTokenForUser } from "../services/auth.js";
 
 const UserSchema = new mongoose.Schema(
   {
@@ -7,6 +8,11 @@ const UserSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     salt: { type: String, required: true },
     password: { type: String, required: true },
+    profileImageURL: {
+  type: String,
+  default: "/images/default.png"
+},
+
     role: {
       type: String,
       enum: ["USER", "ADMIN"],
@@ -16,7 +22,7 @@ const UserSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-UserSchema.pre("validate", async function () {
+UserSchema.pre("validate", function () {
   if (!this.isModified("password")) return;
 
   this.salt = randomBytes(16).toString("hex");
@@ -25,12 +31,17 @@ UserSchema.pre("validate", async function () {
     .digest("hex");
 });
 
-UserSchema.methods.matchPassword = function (password) {
+UserSchema.methods.matchPasswordAndGenerateToken = function (password) {
   const hash = createHmac("sha256", this.salt)
     .update(password)
     .digest("hex");
 
-  return this.password === hash;
+  if (hash !== this.password) {
+    throw new Error("Invalid password");
+  }
+
+  const token = createTokenForUser(this);
+  return token;
 };
 
 UserSchema.methods.toSafeObject = function () {

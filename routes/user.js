@@ -2,7 +2,6 @@ import express from "express";
 import User from "../models/user.js";
 
 const router = express.Router();
-
 // Signin page
 router.get("/signin", (req, res) => {
   return res.render("signin");
@@ -23,13 +22,22 @@ router.post("/signin", async (req, res) => {
     return res.status(400).send("User not found");
   }
 
-  const isMatch = user.matchPassword(password);
-  if (!isMatch) {
-    return res.status(400).send("Invalid password");
-  }
+  try {
+    const token = user.matchPasswordAndGenerateToken(password);
 
-  return res.send("Login successful");
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: false, // prod me true
+        sameSite: "lax",
+      })
+      .redirect("/");
+
+  } catch (err) {
+    return res.render('signin',{error :"Incorrect Email and password"})
+  }
 });
+
 
 // 
 // Signup form submit
