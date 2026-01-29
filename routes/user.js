@@ -57,7 +57,7 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-// ✅ LOGOUT ROUTE (TOP LEVEL)
+//  LOGOUT ROUTE (TOP LEVEL)
 router.get("/logout", (req, res) => {
   res.clearCookie("token").redirect("/");
 });
