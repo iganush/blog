@@ -2,42 +2,101 @@
 <html lang="en">
 
 <head>
-    <%- include('./partials/head') %>
-        <title>Add New Blog</title>
+  <%- include('./partials/head') %>
+  <title>Create New Post | Blog</title>
+  <style>
+    body {
+      background-color: #f3f4f6;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .form-container {
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+      padding: 40px;
+      margin-top: 50px;
+      max-width: 800px;
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    .form-control {
+      border-radius: 10px;
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: #6366f1;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    textarea.form-control {
+      min-height: 200px;
+    }
+
+    .btn-submit {
+      background-color: #6366f1;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 10px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      transition: background 0.3s;
+    }
+
+    .btn-submit:hover {
+      background-color: #4f46e5;
+    }
+
+    .page-title {
+      font-weight: 800;
+      color: #111827;
+      margin-bottom: 30px;
+    }
+  </style>
 </head>
 
 <body>
-    <%- include('./partials/nav') %>
-        <div class="container mt-3">
-            <form action="/blog" method="post" enctype="multipart/form-data">
+  <%- include('./partials/nav') %>
 
+  <div class="container d-flex justify-content-center">
+    <div class="form-container w-100">
+      <h2 class="page-title text-center">Write a <span style="color: #6366f1;">New Story</span></h2>
 
-                <div class="mb-3">
-                    <div class="mb-3">
-                        <label for="coverImage" class="form-label">Cover Image</label>
-                        <input type="file" class="form-control" id="coverImage" name="coverImage"
-                            aria-describedby="coverImage" />
-                    </div>
-
-
-
-                    <div class="mb-3">
-                        <label for="title" class="form-label">Title</label>
-                        <input type="text" class="form-control" id="title" name="title" aria-describedby="title">
-                    </div>
-                    <label for="body">Body</label>
-                    <div class="mb-3">
-
-                        <textarea name="body" class="form-control" placeholder="Leave a comments here"
-                            id="body"></textarea>
-                        <div class="mb-3">
-                            <button class="btn btn-primary mt-3">Submit</button>
-                        </div>
-                    </div>
-            </form>
+      <form action="/blog" method="post" enctype="multipart/form-data">
+        
+        <div class="mb-4">
+          <label for="coverImage" class="form-label">Cover Image</label>
+          <input type="file" class="form-control" id="coverImage" name="coverImage" accept="image/*" required />
+          <div class="form-text">Choose a high-quality landscape image.</div>
         </div>
 
-        <%- include('./partials/scripts') %>
+        <div class="mb-4">
+          <label for="title" class="form-label">Blog Title</label>
+          <input type="text" class="form-control" id="title" name="title" placeholder="Enter a catchy title..." required>
+        </div>
+
+        <div class="mb-4">
+          <label for="body" class="form-label">Content</label>
+          <textarea name="body" class="form-control" id="body" placeholder="Start writing your thoughts here..." required></textarea>
+        </div>
+
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-primary btn-submit">Publish Blog</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <%- include('./partials/scripts') %>
 </body>
 
 </html>
