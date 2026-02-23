@@ -48,6 +48,34 @@ router.post("/comment/:blogId", async (req, res) => {
   return res.redirect(`/blog/${req.params.blogId}`);
 });
 
+// DELETE BLOG (only creator can delete)
+router.post("/:id/delete", async (req, res) => {
+  if (!req.user) {
+    return res.redirect("/user/signin");
+  }
+
+  const blog = await Blog.findById(req.params.id);
+  if (!blog) {
+    return res.status(404).send("Blog not found");
+  }
+
+  if (String(blog.createdBy) !== String(req.user._id)) {
+    return res.status(403).send("You are not allowed to delete this blog");
+  }
+
+  if (blog.coverImageURL) {
+    const imagePath = path.resolve(`./public${blog.coverImageURL}`);
+    if (fs.existsSync(imagePath)) {
+      fs.unlinkSync(imagePath);
+    }
+  }
+
+  await Comment.deleteMany({ blogId: blog._id });
+  await Blog.deleteOne({ _id: blog._id });
+
+  return res.redirect("/");
+});
+
 // BLOG DETAIL ROUTE
 router.get("/:Id", async (req, res) => {
   const blog = await Blog.findById(req.params.Id).populate("createdBy");
