@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('./partials/head') %>
+  <title><%= profileUser.fullName %> | Profile</title>
+  <style>
+    .profile-shell {
+      max-width: 1100px;
+      margin: 32px auto;
+    }
+
+    .panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      box-shadow: 0 8px 20px var(--shadow-color);
+    }
+
+    .hero {
+      padding: 24px;
+    }
+
+    .stat-box {
+      border: 1px solid var(--border-color);
+      background: var(--bg-subtle);
+      border-radius: 14px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .feed-post {
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 12px;
+      background: var(--bg-surface);
+    }
+
+    .feed-image {
+      width: 100%;
+      max-height: 280px;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 1px solid var(--border-color);
+      margin-top: 10px;
+    }
+
+    .mini-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .mini-user:last-child {
+      border-bottom: 0;
+    }
+  </style>
+</head>
+<body>
+  <%- include('./partials/nav') %>
+
+  <main class="container-fluid px-3 px-lg-4">
+    <div class="profile-shell row g-4">
+      <section class="col-lg-8">
+        <div class="panel hero mb-3">
+          <div class="d-flex flex-wrap gap-3 justify-content-between align-items-start">
+            <div class="d-flex gap-3 align-items-center">
+              <img src="<%= profileUser.profileImageURL || '/images/default.jpg' %>" width="84" height="84" class="rounded-circle border" alt="">
+              <div>
+                <h2 class="fw-bold mb-1"><%= profileUser.fullName %></h2>
+                <p class="theme-text-muted mb-0"><%= profileUser.email %></p>
+                <p class="theme-text-muted mb-0"><%= profileUser.bio || 'No bio yet.' %></p>
+              </div>
+            </div>
+
+            <div>
+              <% if (isOwnProfile) { %>
+                <a href="/blog/add-new" class="btn btn-brand">Create New Post</a>
+              <% } else if (locals.user) { %>
+                <form action="/user/<%= profileUser._id %>/follow" method="post">
+                  <input type="hidden" name="redirectTo" value="/user/profile/<%= profileUser._id %>">
+                  <button type="submit" class="btn <%= isFollowing ? 'btn-outline-secondary' : 'btn-brand' %>"><%= isFollowing ? 'Following' : 'Follow' %></button>
+                </form>
+              <% } else { %>
+                <a href="/user/signin" class="btn btn-brand">Sign in to Follow</a>
+              <% } %>
+            </div>
+          </div>
+
+          <div class="row g-2 mt-3">
+            <div class="col-4">
+              <div class="stat-box">
+                <div class="h5 mb-0"><%= posts.length %></div>
+                <small class="theme-text-muted">Posts</small>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="stat-box">
+                <div class="h5 mb-0"><%= profileUser.followers?.length || 0 %></div>
+                <small class="theme-text-muted">Followers</small>
+              </div>
+            </div>
+            <div class="col-4">
+              <div class="stat-box">
+                <div class="h5 mb-0"><%= profileUser.following?.length || 0 %></div>
+                <small class="theme-text-muted">Following</small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel p-4">
+          <h5 class="fw-bold mb-3">Posts by <%= profileUser.fullName %></h5>
+          <% if (posts.length > 0) { %>
+            <% posts.forEach((post) => { %>
+              <article class="feed-post">
+                <div class="d-flex justify-content-between align-items-start gap-2">
+                  <div>
+                    <a href="/blog/<%= post._id %>" class="text-decoration-none fw-semibold" style="color: var(--text-main);"><%= post.title %></a>
+                    <div class="small theme-text-muted"><%= new Date(post.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %> • <%= post.category || 'Others' %></div>
+                  </div>
+                  <span class="badge text-bg-light border">Likes <%= post.likesCount || 0 %></span>
+                </div>
+                <p class="theme-text-muted mt-2 mb-2"><%= post.body?.substring(0, 140) %>...</p>
+                <img src="<%= post.coverImageURL || '/images/default.jpg' %>" class="feed-image" alt="">
+                <div class="mt-2">
+                  <a class="btn btn-sm btn-outline-primary" href="/blog/<%= post._id %>">Read Post</a>
+                </div>
+              </article>
+            <% }) %>
+          <% } else { %>
+            <p class="theme-text-muted mb-0">No posts yet.</p>
+          <% } %>
+        </div>
+      </section>
+
+      <aside class="col-lg-4">
+        <div class="panel p-4 mb-3">
+          <h6 class="fw-bold mb-3">Followers (<%= profileUser.followers?.length || 0 %>)</h6>
+          <% if (profileUser.followers?.length > 0) { %>
+            <% profileUser.followers.forEach((person) => { %>
+              <a class="mini-user text-decoration-none" href="/user/profile/<%= person._id %>">
+                <img src="<%= person.profileImageURL || '/images/default.jpg' %>" width="34" height="34" class="rounded-circle border" alt="">
+                <span style="color: var(--text-main);"><%= person.fullName %></span>
+              </a>
+            <% }) %>
+          <% } else { %>
+            <p class="theme-text-muted mb-0">No followers yet.</p>
+          <% } %>
+        </div>
+
+        <div class="panel p-4">
+          <h6 class="fw-bold mb-3">Following (<%= profileUser.following?.length || 0 %>)</h6>
+          <% if (profileUser.following?.length > 0) { %>
+            <% profileUser.following.forEach((person) => { %>
+              <a class="mini-user text-decoration-none" href="/user/profile/<%= person._id %>">
+                <img src="<%= person.profileImageURL || '/images/default.jpg' %>" width="34" height="34" class="rounded-circle border" alt="">
+                <span style="color: var(--text-main);"><%= person.fullName %></span>
+              </a>
+            <% }) %>
+          <% } else { %>
+            <p class="theme-text-muted mb-0">Not following anyone yet.</p>
+          <% } %>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <%- include('./partials/scripts') %>
+</body>
+</html>

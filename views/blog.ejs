@@ -4,33 +4,81 @@
   <%- include('./partials/head') %>
   <title><%= blog.title %> | Blog</title>
   <style>
-    body { background-color: #fcfcfc; font-family: 'Inter', sans-serif; color: #1f2937; }
-    
-    .blog-header { max-width: 800px; margin: 60px auto 30px; }
-    .blog-title { font-size: 2.8rem; font-weight: 800; color: #111827; line-height: 1.2; margin-bottom: 25px; }
-    
-    /* Author Section Styling */
-    .author-badge { 
-      display: flex; 
-      align-items: center; 
-      gap: 15px; 
-      padding: 10px 0;
-      margin-bottom: 30px;
-      border-top: 1px solid #eee;
-      border-bottom: 1px solid #eee;
+    .blog-header { max-width: 840px; margin: 60px auto 30px; }
+    .blog-title { font-size: clamp(2rem, 5vw, 2.9rem); font-weight: 800; line-height: 1.2; margin-bottom: 18px; }
+
+    .meta-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
     }
-    .author-img { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+
+    .meta-pill {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border-color);
+      border-radius: 999px;
+      padding: 0.35rem 0.8rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: var(--bg-subtle);
+    }
+
+    .author-badge {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 12px 0;
+      margin-bottom: 24px;
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .author-img {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 4px 10px var(--shadow-color);
+    }
+
     .author-details { display: flex; flex-direction: column; }
-    .author-name { font-weight: 700; color: #6366f1; font-size: 1.1rem; margin: 0; }
-    .post-date { font-size: 0.85rem; color: #6b7280; }
+    .author-name { font-weight: 700; color: var(--brand); font-size: 1.1rem; margin: 0; }
+    .post-date { font-size: 0.85rem; color: var(--text-muted); }
 
-    .featured-image { width: 100%; border-radius: 24px; margin-bottom: 40px; box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
-    .blog-content { font-size: 1.2rem; line-height: 1.9; color: #374151; white-space: pre-wrap; margin-bottom: 50px; }
-    .delete-blog-form { margin-bottom: 30px; }
+    .featured-image {
+      width: 100%;
+      border-radius: 24px;
+      margin-bottom: 34px;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 20px 40px var(--shadow-color);
+      max-height: 430px;
+      object-fit: cover;
+    }
 
-    /* Comment Box */
-    .comment-section { background: #ffffff; border: 1px solid #e5e7eb; border-radius: 24px; padding: 35px; margin-top: 40px; }
-    .comment-card { border-bottom: 1px solid #f3f4f6; padding: 20px 0; }
+    .blog-content {
+      font-size: 1.1rem;
+      line-height: 1.9;
+      color: var(--text-main);
+      white-space: pre-wrap;
+      margin-bottom: 40px;
+    }
+
+    .comment-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 35px;
+      margin-top: 40px;
+    }
+
+    .comment-card {
+      border-bottom: 1px solid var(--border-color);
+      padding: 20px 0;
+    }
+
     .comment-card:last-child { border-bottom: none; }
   </style>
 </head>
@@ -41,45 +89,68 @@
   <article class="container">
     <div class="blog-header">
       <h1 class="blog-title"><%= blog.title %></h1>
-      
+
+      <div class="meta-pills">
+        <span class="meta-pill"><%= blog.category || "Others" %></span>
+        <span class="meta-pill">Likes: <%= blog.likesCount || 0 %></span>
+        <span class="meta-pill"><%= new Date(blog.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) %></span>
+      </div>
+
       <div class="author-badge">
-        <img src="<%= blog.createdBy?.profileImageURL || '/images/default-avatar.png' %>" class="author-img" alt="Author">
+        <img src="<%= blog.createdBy?.profileImageURL || '/images/default.jpg' %>" class="author-img" alt="Author">
         <div class="author-details">
-          <p class="author-name">By <%= blog.createdBy?.fullName %></p>
+          <p class="author-name">By <a href="/user/profile/<%= blog.createdBy?._id %>" class="text-decoration-none" style="color: var(--brand);"><%= blog.createdBy?.fullName %></a></p>
           <span class="post-date">Published on <%= new Date(blog.createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) %></span>
         </div>
       </div>
 
-      <% if (locals.user && blog.createdBy && String(blog.createdBy._id) === String(user._id)) { %>
-        <form action="/blog/<%= blog._id %>/delete" method="post" class="delete-blog-form" onsubmit="return confirm('Are you sure you want to delete this blog?');">
-          <button type="submit" class="btn btn-danger px-4">Delete Blog</button>
-        </form>
-      <% } %>
+      <div class="d-flex flex-wrap gap-2 mb-4">
+        <% if (locals.user) { %>
+          <form action="/blog/<%= blog._id %>/like" method="post">
+            <button type="submit" class="btn <%= hasLiked ? 'btn-outline-secondary' : 'btn-brand' %>">
+              <%= hasLiked ? 'Unlike' : 'Like this post' %>
+            </button>
+          </form>
+          <% if (!isOwnAuthor) { %>
+            <form action="/user/<%= blog.createdBy?._id %>/follow" method="post">
+              <input type="hidden" name="redirectTo" value="/blog/<%= blog._id %>">
+              <button type="submit" class="btn <%= isFollowingAuthor ? 'btn-outline-secondary' : 'btn-brand' %>">
+                <%= isFollowingAuthor ? 'Following Author' : 'Follow Author' %>
+              </button>
+            </form>
+          <% } %>
+        <% } else { %>
+          <a class="btn btn-brand" href="/user/signin">Sign in to Like</a>
+          <a class="btn btn-outline-primary" href="/user/signin">Sign in to Follow Author</a>
+        <% } %>
 
-      <img src="<%= blog.coverImageURL %>" class="featured-image" alt="<%= blog.title %>">
-
-      <div class="blog-content">
-        <%= blog.body %>
+        <% if (locals.user && blog.createdBy && String(blog.createdBy._id) === String(user._id)) { %>
+          <form action="/blog/<%= blog._id %>/delete" method="post" onsubmit="return confirm('Are you sure you want to delete this blog?');">
+            <button type="submit" class="btn btn-danger px-4">Delete Blog</button>
+          </form>
+        <% } %>
       </div>
 
-      <div class="p-4 bg-light rounded-4 d-flex align-items-center gap-3 mb-5">
-        <img src="<%= blog.createdBy?.profileImageURL || '/images/default-avatar.png' %>" width="60" height="60" class="rounded-circle" alt="">
+      <img src="<%= blog.coverImageURL || '/images/default.jpg' %>" class="featured-image" alt="<%= blog.title %>">
+
+      <div class="blog-content"><%= blog.body %></div>
+
+      <div class="p-4 theme-subtle rounded-4 d-flex align-items-center gap-3 mb-5 border">
+        <img src="<%= blog.createdBy?.profileImageURL || '/images/default.jpg' %>" width="60" height="60" class="rounded-circle" alt="">
         <div>
           <h6 class="mb-0 fw-bold">About <%= blog.createdBy?.fullName %></h6>
-          <p class="mb-0 text-muted small">Content Creator at Blogify</p>
+          <p class="mb-0 theme-text-muted small">Content Creator at Blogify</p>
         </div>
       </div>
-
-      <hr>
 
       <section class="comment-section shadow-sm mb-5">
         <h4 class="fw-bold mb-4">Discussion (<%= comments.length %>)</h4>
 
         <% if (locals.user) { %>
           <form action="/blog/comment/<%= blog._id %>" method="post" class="mb-5">
-            <textarea name="content" class="form-control border-0 bg-light p-3" rows="3" placeholder="Join the conversation..." style="border-radius: 15px;"></textarea>
+            <textarea name="content" class="form-control p-3" rows="3" required placeholder="Join the conversation..." style="border-radius: 15px; background: var(--bg-subtle);"></textarea>
             <div class="text-end mt-2">
-              <button class="btn btn-primary px-4 fw-bold" type="submit" style="border-radius: 50px; background-color: #6366f1;">Post Comment</button>
+              <button class="btn btn-brand px-4 fw-bold" type="submit" style="border-radius: 50px;">Post Comment</button>
             </div>
           </form>
         <% } %>
@@ -88,10 +159,10 @@
           <% comments.forEach(comment => { %>
             <div class="comment-card">
               <div class="d-flex align-items-center gap-2 mb-2">
-                <img src="<%= comment.createdBy?.profileImageURL || '/images/default-avatar.png' %>" class="rounded-circle" width="30" height="30" alt="">
+                <img src="<%= comment.createdBy?.profileImageURL || '/images/default.jpg' %>" class="rounded-circle" width="30" height="30" alt="">
                 <span class="fw-bold small"><%= comment.createdBy?.fullName %></span>
               </div>
-              <p class="text-muted mb-0 ps-4 ms-2 border-start"><%= comment.content %></p>
+              <p class="theme-text-muted mb-0 ps-4 ms-2 border-start"><%= comment.content %></p>
             </div>
           <% }) %>
         </div>

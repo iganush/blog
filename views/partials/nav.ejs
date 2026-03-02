@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand-lg sticky-top custom-navbar">
   <div class="container">
     <a class="navbar-brand fw-bold" href="/">
-      <span style="color: #6366f1;">Blog</span>ify
+      <span style="color: var(--brand);">Blog</span>ify
     </a>
 
     <button class="navbar-toggler shadow-none border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
@@ -13,6 +13,12 @@
         <li class="nav-item">
           <a class="nav-link px-3" href="/">Home</a>
         </li>
+        <li class="nav-item">
+          <button class="btn btn-theme-toggle ms-lg-2 me-lg-3 mt-2 mt-lg-0" id="themeToggle" type="button" aria-label="Toggle dark mode">
+            <span class="theme-icon" aria-hidden="true">MOON</span>
+            <span class="theme-label">Dark</span>
+          </button>
+        </li>
 
         <% if (locals.user) { %>
           <li class="nav-item">
@@ -21,11 +27,13 @@
 
           <li class="nav-item dropdown ms-lg-3">
             <a class="nav-link dropdown-toggle user-dropdown d-flex align-items-center gap-2" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="<%= user.profileImageURL || '/images/default-avatar.png' %>" width="32" height="32" class="rounded-circle border" alt="Profile">
+              <img src="<%= user.profileImageURL || '/images/default.jpg' %>" width="32" height="32" class="rounded-circle border" alt="Profile">
               <span><%= user.fullName %></span>
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2">
-              <li><a class="dropdown-item py-2" href="/user/logout text-danger">Logout</a></li>
+              <li><a class="dropdown-item py-2" href="/user/me">My Profile</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item py-2" href="/user/logout">Logout</a></li>
             </ul>
           </li>
         <% } else { %>
@@ -44,7 +52,6 @@
 <% if (locals.error) { %>
   <div class="container mt-3">
     <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm" role="alert" style="border-radius: 12px;">
-      <i class="bi bi-exclamation-triangle-fill me-2"></i>
       <%= locals.error %>
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
     </div>
@@ -53,10 +60,10 @@
 
 <style>
   .custom-navbar {
-    background: rgba(255, 255, 255, 0.85);
+    background: color-mix(in srgb, var(--bg-surface) 88%, transparent);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid var(--border-color);
     padding: 0.8rem 0;
     transition: all 0.3s ease;
   }
@@ -64,27 +71,28 @@
   .navbar-brand {
     font-size: 1.5rem;
     letter-spacing: -0.5px;
-    color: #111827 !important;
+    color: var(--text-main) !important;
   }
 
   .nav-link {
     font-weight: 500;
-    color: #4b5563 !important;
+    color: var(--text-muted) !important;
     transition: color 0.2s;
   }
 
   .nav-link:hover, .nav-link.active {
-    color: #6366f1 !important;
+    color: var(--brand) !important;
   }
 
   .user-dropdown {
-    background: #f3f4f6;
+    background: var(--bg-subtle);
     border-radius: 50px;
     padding: 5px 15px 5px 5px !important;
+    border: 1px solid var(--border-color);
   }
 
   .btn-nav-signup {
-    background-color: #6366f1;
+    background-color: var(--brand);
     color: white !important;
     border-radius: 50px;
     font-weight: 600;
@@ -92,11 +100,33 @@
   }
 
   .btn-nav-signup:hover {
-    background-color: #4f46e5;
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    background-color: var(--brand-hover);
+    box-shadow: 0 4px 12px var(--shadow-color);
+  }
+
+  .btn-theme-toggle {
+    border: 1px solid var(--border-color);
+    background: var(--bg-subtle);
+    color: var(--text-main);
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0.3rem 0.8rem;
+  }
+
+  .btn-theme-toggle:hover {
+    border-color: var(--brand);
+    color: var(--brand);
   }
 
   .dropdown-item:active {
-    background-color: #6366f1;
+    background-color: var(--brand);
+  }
+
+  .dropdown-item {
+    color: var(--text-main);
   }
 </style>

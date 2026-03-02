@@ -1,1 +1,31 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+<script>
+  (function () {
+    var root = document.documentElement;
+    var toggleButton = document.getElementById("themeToggle");
+    if (!toggleButton) return;
+
+    var icon = toggleButton.querySelector(".theme-icon");
+    var label = toggleButton.querySelector(".theme-label");
+
+    function renderState() {
+      var isDark = root.getAttribute("data-theme") === "dark";
+      icon.textContent = isDark ? "SUN" : "MOON";
+      label.textContent = isDark ? "Light" : "Dark";
+    }
+
+    toggleButton.addEventListener("click", function () {
+      var isDark = root.getAttribute("data-theme") === "dark";
+      if (isDark) {
+        root.removeAttribute("data-theme");
+        localStorage.setItem("theme", "light");
+      } else {
+        root.setAttribute("data-theme", "dark");
+        localStorage.setItem("theme", "dark");
+      }
+      renderState();
+    });
+
+    renderState();
+  })();
+</script>

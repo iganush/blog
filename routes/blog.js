@@ -2,11 +2,18 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
-import Blog from "../models/blog.js";
+import Blog, { BLOG_CATEGORIES } from "../models/blog.js";
 import Comment from "../models/comment.js";
+import User from "../models/user.js";
 
 const router = express.Router();
 
+function requireUser(req, res, next) {
+  if (!req.user) {
+    return res.redirect("/user/signin");
+  }
+  next();
+}
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -27,18 +34,15 @@ const upload = multer({ storage });
 
 
 // Add blog page
-router.get("/add-new", (req, res) => {
+router.get("/add-new", requireUser, (req, res) => {
   return res.render("addBlog", {
     user: req.user,
+    categories: BLOG_CATEGORIES,
   });
 });
 
 // COMMENT ROUTE (login required)
-router.post("/comment/:blogId", async (req, res) => {
-  if (!req.user) {
-    return res.redirect("/user/signin");
-  }
-
+router.post("/comment/:blogId", requireUser, async (req, res) => {
   await Comment.create({
     content: req.body.content,
     blogId: req.params.blogId,
@@ -49,11 +53,7 @@ router.post("/comment/:blogId", async (req, res) => {
 });
 
 // DELETE BLOG (only creator can delete)
-router.post("/:id/delete", async (req, res) => {
-  if (!req.user) {
-    return res.redirect("/user/signin");
-  }
-
+router.post("/:id/delete", requireUser, async (req, res) => {
   const blog = await Blog.findById(req.params.id);
   if (!blog) {
     return res.status(404).send("Blog not found");
@@ -79,20 +79,68 @@ router.post("/:id/delete", async (req, res) => {
 // BLOG DETAIL ROUTE
 router.get("/:Id", async (req, res) => {
   const blog = await Blog.findById(req.params.Id).populate("createdBy");
-  const comments = await Comment.find({ blogId: req.params.Id }).populate(
-    "createdBy"
-  );
+  if (!blog) {
+    return res.status(404).send("Blog not found");
+  }
+
+  const comments = await Comment.find({ blogId: req.params.Id })
+    .sort({ createdAt: -1 })
+    .populate("createdBy");
+  const hasLiked =
+    !!req.user &&
+    blog?.likedBy?.some(likedUserId => String(likedUserId) === String(req.user._id));
+  const isOwnAuthor =
+    !!req.user && String(blog.createdBy?._id) === String(req.user._id);
+
+  let isFollowingAuthor = false;
+  if (req.user && !isOwnAuthor) {
+    const currentUser = await User.findById(req.user._id).select("following").lean();
+    isFollowingAuthor =
+      currentUser?.following?.some(
+        followingUserId => String(followingUserId) === String(blog.createdBy?._id)
+      ) || false;
+  }
 
   return res.render("blog", {
     user: req.user,
     blog,
     comments,
+    hasLiked,
+    isOwnAuthor,
+    isFollowingAuthor,
   });
 });
 
+// LIKE OR UNLIKE BLOG (login required)
+router.post("/:Id/like", requireUser, async (req, res) => {
+  const blog = await Blog.findById(req.params.Id);
+  if (!blog) {
+    return res.status(404).send("Blog not found");
+  }
+
+  const hasLiked = blog.likedBy.some(
+    likedUserId => String(likedUserId) === String(req.user._id)
+  );
+
+  if (hasLiked) {
+    blog.likedBy = blog.likedBy.filter(
+      likedUserId => String(likedUserId) !== String(req.user._id)
+    );
+    blog.likesCount = Math.max(0, blog.likesCount - 1);
+  } else {
+    blog.likedBy.push(req.user._id);
+    blog.likesCount += 1;
+  }
+
+  await blog.save();
+
+  return res.redirect(`/blog/${req.params.Id}`);
+});
+
 // CREATE BLOG
-router.post("/", upload.single("coverImage"), async (req, res) => {
-  const { title, body } = req.body;
+router.post("/", requireUser, upload.single("coverImage"), async (req, res) => {
+  const { title, body, category } = req.body;
+  const safeCategory = BLOG_CATEGORIES.includes(category) ? category : "Others";
 
   const coverImageURL = req.file
     ? `/uploads/${req.user._id}/${req.file.filename}`
@@ -101,6 +149,7 @@ router.post("/", upload.single("coverImage"), async (req, res) => {
   await Blog.create({
     title,
     body,
+    category: safeCategory,
     coverImageURL,
     createdBy: req.user._id,
   });

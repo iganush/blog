@@ -6,12 +6,28 @@ const UserSchema = new mongoose.Schema(
   {
     fullName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
+    bio: {
+      type: String,
+      default: "Writer, thinker and explorer.",
+    },
     salt: { type: String, required: true },
     password: { type: String, required: true },
     profileImageURL: {
   type: String,
   default: "/images/default.jpg"
 },
+    followers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    following: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
 
     role: {
       type: String,

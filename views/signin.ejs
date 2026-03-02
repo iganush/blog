@@ -6,48 +6,50 @@
     <title>Sign In | Welcome Back</title>
     <style>
         body {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background: radial-gradient(circle at top right, color-mix(in srgb, var(--brand) 20%, transparent), transparent 50%), var(--bg-main);
             min-height: 100vh;
-            font-family: 'Inter', sans-serif;
+            color: var(--text-main);
         }
 
         .auth-card {
-            background: rgba(255, 255, 255, 0.9);
+            background: color-mix(in srgb, var(--bg-surface) 92%, transparent);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 35px var(--shadow-color);
             padding: 40px;
             margin-top: 80px;
             max-width: 450px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 1px solid var(--border-color);
         }
 
         .auth-title {
             font-weight: 800;
-            color: #1a202c;
+            color: var(--text-main);
             margin-bottom: 10px;
         }
 
         .form-label {
             font-weight: 600;
             font-size: 0.9rem;
-            color: #4a5568;
+            color: var(--text-muted);
         }
 
         .form-control {
             border-radius: 12px;
             padding: 12px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
+            background: var(--bg-subtle);
+            color: var(--text-main);
         }
 
         .form-control:focus {
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-            border-color: #6366f1;
+            box-shadow: 0 0 0 3px color-mix(in srgb, var(--brand) 25%, transparent);
+            border-color: var(--brand);
         }
 
         .btn-signin {
-            background: #6366f1;
+            background: var(--brand);
             border: none;
             border-radius: 12px;
             padding: 12px;
@@ -58,14 +60,14 @@
         }
 
         .btn-signin:hover {
-            background: #4f46e5;
+            background: var(--brand-hover);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+            box-shadow: 0 5px 15px var(--shadow-color);
         }
 
         .signup-link {
             text-decoration: none;
-            color: #6366f1;
+            color: var(--brand);
             font-weight: 600;
         }
     </style>
@@ -84,7 +86,7 @@
             <form action="/user/signin" method="post">
                 <div class="mb-3">
                     <label for="email" class="form-label">Email Address</label>
-                    <input type="email" name="email" class="form-control" id="email" 
+                    <input type="email" name="email" class="form-control" id="email"
                            placeholder="name@example.com" required />
                 </div>
 
@@ -93,12 +95,12 @@
                         <label for="password" class="form-label">Password</label>
                         <a href="#" class="text-muted small text-decoration-none">Forgot?</a>
                     </div>
-                    <input name="password" type="password" class="form-control" id="password" 
-                           placeholder="••••••••" required />
+                    <input name="password" type="password" class="form-control" id="password"
+                           placeholder="********" required />
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-signin">Sign In</button>
-                
+
                 <div class="mt-4 text-center">
                     <p class="small text-muted">
                         Don't have an account? <a href="/user/signup" class="signup-link">Create one</a>
