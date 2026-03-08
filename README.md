@@ -44,3 +44,26 @@ The main objectives of Blogify are to create a platform where users can write, s
 - To create a stronger connection between users by supporting likes, comments, and follow features.
 - To give every writer a personal profile where they can build their identity and grow their audience.
 - To combine content creation and social interaction in one place so that Blogify feels like a complete blogging community.
+
+## Hardware Requirements
+To run Blogify smoothly on a local system, the following hardware requirements are recommended:
+
+- Processor: Intel Core i3 or higher
+- RAM: Minimum 4 GB, 8 GB recommended
+- Storage: At least 500 MB of free disk space
+- System Type: 64-bit operating system
+- Internet Connection: Required for installing packages and dependencies
+
+These requirements are sufficient for development, testing, and running the Blogify project on a personal computer or laptop.
+
+## Software Requirements
+To develop and run Blogify, the following software is required:
+
+- Operating System: Windows, Linux, or macOS
+- Node.js: Required to run the server-side application
+- npm: Required to install project dependencies
+- MongoDB: Required as the database for storing users, blogs, and comments
+- Code Editor: Visual Studio Code or any modern code editor
+- Web Browser: Google Chrome, Microsoft Edge, or any modern browser
+
+These software tools are necessary to install, run, test, and manage the Blogify project successfully.
