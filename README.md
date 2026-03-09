@@ -1,69 +1,219 @@
 # Blogify
 
-## Introduction to the Project
-Blogify is a full-stack blogging platform built with Node.js, Express, MongoDB, and EJS. It is designed to give users a simple and interactive space where they can create, publish, and explore blog content. The project combines content sharing with social features such as likes, comments, user profiles, and follow functionality, making the platform more engaging than a basic blog application.
+Blogify is a full-stack blogging platform built with Node.js, Express, MongoDB, and EJS. It lets users create an account, publish blogs, upload cover images, explore posts by category, search for blogs or users, and interact through likes, comments, and follows.
 
-## Introduction to Blogify
-Blogify is more than just a place to write articles. It is a community-focused blogging application where users can sign up, manage their profiles, publish blogs with categories and cover images, discover trending posts, search for content or people, and interact with other writers. The platform aims to make publishing easy while also encouraging connection between readers and creators.
+## Overview
 
-## Purpose of Blogify
-The main purpose of Blogify is to provide a modern platform for sharing ideas, knowledge, stories, and experiences. It helps users:
+The project uses server-side rendering with EJS and stores data in MongoDB through Mongoose. Authentication is handled with JWT tokens stored in cookies, and blog cover images are uploaded with Multer.
 
-- write and publish blogs in different categories
-- discover useful and trending content
-- connect with other users through follows, likes, and comments
-- build a personal writing profile and audience
-- create a simple blogging community with meaningful interaction
+## Features
 
-In short, Blogify is built to make content creation, content discovery, and community engagement available in one place.
+- User signup, signin, and logout
+- Cookie-based authentication with JWT
+- Create blog posts with title, body, category, and optional cover image
+- View latest blogs on the homepage
+- Trending blog section based on likes
+- Search blogs and users from the homepage
+- Filter blogs by category
+- Like and unlike blog posts
+- Add comments to blog posts
+- Public user profile pages
+- Follow and unfollow other users
+- Suggested users section
+- Delete a blog post if you are the author
 
-## Facilities of Blogify
-Blogify provides several useful facilities for users and readers, including:
+## Tech Stack
 
-- user signup and signin system
-- secure authentication using cookies and tokens
-- create, publish, and manage blog posts
-- upload cover images for blogs
-- organize blogs by category
-- search blogs and users
-- like and unlike blog posts
-- comment on blogs
-- follow and unfollow other users
-- view public user profiles
-- discover trending blogs
-- explore the latest published posts
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
+- EJS
+- Cookie Parser
+- JSON Web Token
+- Multer
+- Nodemon
 
-These facilities make Blogify a complete blogging platform that supports writing, reading, and social interaction.
+## Project Structure
 
-## Objectives of Blogify
-The main objectives of Blogify are to create a platform where users can write, share, and discover meaningful content in a simple and engaging way. The project is designed not only as a blogging website, but also as a space where writers and readers can connect with each other through content and interaction.
+```text
+blog/
+|-- index.js
+|-- package.json
+|-- middlewares/
+|   `-- authentication.js
+|-- models/
+|   |-- blog.js
+|   |-- comment.js
+|   `-- user.js
+|-- routes/
+|   |-- blog.js
+|   `-- user.js
+|-- services/
+|   `-- auth.js
+|-- public/
+|   |-- images/
+|   `-- uploads/
+`-- views/
+    |-- home.ejs
+    |-- blog.ejs
+    |-- addBlog.ejs
+    |-- profile.ejs
+    |-- signin.ejs
+    `-- Signup.ejs
+```
 
-- To provide an easy and user-friendly blogging platform where users can create and publish posts without difficulty.
-- To encourage people to share their knowledge, ideas, stories, and personal experiences through well-organized blog content.
-- To help readers discover blogs easily by using categories, search features, latest posts, and trending content.
-- To create a stronger connection between users by supporting likes, comments, and follow features.
-- To give every writer a personal profile where they can build their identity and grow their audience.
-- To combine content creation and social interaction in one place so that Blogify feels like a complete blogging community.
+## Main Modules
 
-## Hardware Requirements
-To run Blogify smoothly on a local system, the following hardware requirements are recommended:
+### User Module
 
-- Processor: Intel Core i3 or higher
-- RAM: Minimum 4 GB, 8 GB recommended
-- Storage: At least 500 MB of free disk space
-- System Type: 64-bit operating system
-- Internet Connection: Required for installing packages and dependencies
+The user module handles account creation, login, logout, profile viewing, and follow or unfollow actions.
 
-These requirements are sufficient for development, testing, and running the Blogify project on a personal computer or laptop.
+### Blog Module
 
-## Software Requirements
-To develop and run Blogify, the following software is required:
+The blog module handles blog creation, blog detail pages, category selection, cover image uploads, likes, comments, and deletion by the author.
 
-- Operating System: Windows, Linux, or macOS
-- Node.js: Required to run the server-side application
-- npm: Required to install project dependencies
-- MongoDB: Required as the database for storing users, blogs, and comments
-- Code Editor: Visual Studio Code or any modern code editor
-- Web Browser: Google Chrome, Microsoft Edge, or any modern browser
+### Authentication Module
 
-These software tools are necessary to install, run, test, and manage the Blogify project successfully.
+Authentication is managed through JWT tokens stored in cookies. A middleware reads the token on each request and attaches the logged-in user payload to `req.user`.
+
+## Data Models
+
+### User
+
+Stores:
+
+- full name
+- email
+- password hash
+- salt
+- bio
+- profile image URL
+- role
+- followers
+- following
+
+### Blog
+
+Stores:
+
+- title
+- body
+- cover image URL
+- category
+- likes count
+- liked by users
+- author reference
+
+### Comment
+
+Stores:
+
+- comment content
+- blog reference
+- author reference
+
+## Dependencies Used
+
+### Production Dependencies
+
+- `express` - Main backend framework for routes, middleware, and server logic.
+- `mongoose` - Connects the app to MongoDB and manages schemas and queries.
+- `dotenv` - Loads environment variables from the `.env` file.
+- `ejs` - Renders dynamic server-side views.
+- `cookie-parser` - Parses cookies so auth tokens can be read from requests.
+- `jsonwebtoken` - Creates and verifies JWT tokens for authentication.
+- `multer` - Handles cover image uploads and stores files in `public/uploads`.
+
+### Development Dependency
+
+- `nodemon` - Restarts the server automatically during development when files change.
+
+## Prerequisites
+
+Make sure the following are installed on your system:
+
+- Node.js
+- npm
+- MongoDB
+
+## Environment Variables
+
+Create a `.env` file in the project root and add:
+
+```env
+MONGODB_URL=mongodb://127.0.0.1:27017/blogify
+PORT=3001
+```
+
+### Important Note
+
+The MongoDB connection string is read from `.env`, but the JWT signing secret is currently hardcoded inside `services/auth.js`. For production use, move that secret to an environment variable.
+
+## Installation
+
+```bash
+npm install
+```
+
+## Run Locally
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Start in normal mode:
+
+```bash
+npm start
+```
+
+The app runs on:
+
+```text
+http://localhost:3001
+```
+
+If `PORT` is set in `.env`, that value will be used instead.
+
+## Available Scripts
+
+- `npm run dev` - Runs the app with Nodemon
+- `npm start` - Runs the app with Node.js
+- `npm test` - Placeholder script, currently not configured
+
+## How Authentication Works
+
+1. A user signs up or signs in.
+2. The server creates a JWT token.
+3. The token is stored in a cookie named `token`.
+4. The authentication middleware validates the token on future requests.
+5. If valid, the user payload is attached to `req.user`.
+
+## Upload Behavior
+
+- Blog cover images are uploaded using Multer.
+- Files are stored inside `public/uploads/<userId>/`.
+- The uploaded file path is saved with the blog document and used while rendering pages.
+
+## Current Functionality on the Homepage
+
+The homepage currently supports:
+
+- latest blogs
+- trending blogs
+- category filtering
+- search by blogs or users
+- suggested users for logged-in users
+
+## Limitations
+
+- No automated tests are configured yet.
+- JWT secret is hardcoded and should be moved to `.env`.
+- This project uses server-rendered EJS pages instead of a separate frontend client.
+
+## License
+
+This project uses the ISC license.
