@@ -14,6 +14,7 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3001;
 const MONGODB = process.env.MONGODB_URL;
+const isProduction = process.env.NODE_ENV === "production";
 
 // db
 mongoose
@@ -22,6 +23,7 @@ mongoose
   .catch(err => console.error(err));
 
 // middlewares
+app.set("trust proxy", 1);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -124,7 +126,10 @@ app.get("/", async (req, res) => {
 app.use("/user", UserRouter);
 app.use("/blog", blogRouter);
 
-// server
-app.listen(PORT, () => {
-  console.log(`Server started at PORT ${PORT}`);
-});
+if (!isProduction) {
+  app.listen(PORT, () => {
+    console.log(`Server started at PORT ${PORT}`);
+  });
+}
+
+export default app;

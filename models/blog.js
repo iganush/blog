@@ -45,6 +45,11 @@ const blogSchema = new mongoose.Schema(
       type: String,
     },
 
+    coverImagePublicId: {
+      type: String,
+      default: null,
+    },
+
     category: {
       type: String,
       enum: BLOG_CATEGORIES,

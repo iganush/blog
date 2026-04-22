@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-const secret = "$superMan@123";
+const secret = process.env.JWT_SECRET || "$superMan@123";
 
 export function createTokenForUser(user) {
   const payload = {

@@ -1,10 +1,9 @@
 import express from "express";
 import multer from "multer";
-import path from "path";
-import fs from "fs";
 import Blog, { BLOG_CATEGORIES } from "../models/blog.js";
 import Comment from "../models/comment.js";
 import User from "../models/user.js";
+import { removeBlogCoverImage, saveBlogCoverImage } from "../services/blogMedia.js";
 
 const router = express.Router();
 
@@ -15,23 +14,20 @@ function requireUser(req, res, next) {
   next();
 }
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadPath = path.resolve(`./public/uploads/${req.user._id}`);
-    fs.mkdirSync(uploadPath, { recursive: true });
-    cb(null, uploadPath);
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024,
   },
+  fileFilter(req, file, cb) {
+    if (file.mimetype?.startsWith("image/")) {
+      cb(null, true);
+      return;
+    }
 
-  filename: function (req, file, cb) {
-    const uniqueName = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, uniqueName + ext);
+    cb(new Error("Only image uploads are allowed"));
   },
 });
-
-const upload = multer({ storage });
-
-
 
 // Add blog page
 router.get("/add-new", requireUser, (req, res) => {
@@ -63,10 +59,11 @@ router.post("/:id/delete", requireUser, async (req, res) => {
     return res.status(403).send("You are not allowed to delete this blog");
   }
 
-  if (blog.coverImageURL) {
-    const imagePath = path.resolve(`./public${blog.coverImageURL}`);
-    if (fs.existsSync(imagePath)) {
-      fs.unlinkSync(imagePath);
+  if (blog.coverImageURL || blog.coverImagePublicId) {
+    try {
+      await removeBlogCoverImage(blog);
+    } catch (error) {
+      console.error("Failed to remove blog cover image", error);
     }
   }
 
@@ -139,22 +136,32 @@ router.post("/:Id/like", requireUser, async (req, res) => {
 
 // CREATE BLOG
 router.post("/", requireUser, upload.single("coverImage"), async (req, res) => {
-  const { title, body, category } = req.body;
-  const safeCategory = BLOG_CATEGORIES.includes(category) ? category : "Others";
+  try {
+    const { title, body, category } = req.body;
+    const safeCategory = BLOG_CATEGORIES.includes(category) ? category : "Others";
+    const media = await saveBlogCoverImage({
+      file: req.file,
+      userId: req.user._id,
+    });
 
-  const coverImageURL = req.file
-    ? `/uploads/${req.user._id}/${req.file.filename}`
-    : null;
+    await Blog.create({
+      title,
+      body,
+      category: safeCategory,
+      coverImageURL: media.coverImageURL,
+      coverImagePublicId: media.coverImagePublicId,
+      createdBy: req.user._id,
+    });
 
-  await Blog.create({
-    title,
-    body,
-    category: safeCategory,
-    coverImageURL,
-    createdBy: req.user._id,
-  });
-
-  return res.redirect("/");
+    return res.redirect("/");
+  } catch (error) {
+    console.error("Failed to publish blog", error);
+    return res.status(500).render("addBlog", {
+      user: req.user,
+      categories: BLOG_CATEGORIES,
+      error: "Failed to publish the blog. Please try again.",
+    });
+  }
 });
 
 export default router;

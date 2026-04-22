@@ -3,6 +3,12 @@ import User from "../models/user.js";
 import Blog from "../models/blog.js";
 
 const router = express.Router();
+const isProduction = process.env.NODE_ENV === "production";
+const authCookieOptions = {
+  httpOnly: true,
+  secure: isProduction,
+  sameSite: "lax",
+};
 
 function requireUser(req, res, next) {
   if (!req.user) {
@@ -34,11 +40,7 @@ router.post("/signin", async (req, res) => {
     const token = user.matchPasswordAndGenerateToken(password);
 
     return res
-      .cookie("token", token, {
-        httpOnly: true,
-        secure: false, // prod me true
-        sameSite: "lax",
-      })
+      .cookie("token", token, authCookieOptions)
       .redirect("/");
   } catch (err) {
     return res.render("signin", { error: "Incorrect Email or password" });
@@ -58,11 +60,7 @@ router.post("/signup", async (req, res) => {
     const token = user.matchPasswordAndGenerateToken(password);
 
     return res
-      .cookie("token", token, {
-        httpOnly: true,
-        secure: false, // prod me true
-        sameSite: "lax",
-      })
+      .cookie("token", token, authCookieOptions)
       .redirect("/");
   } catch (error) {
     if (error.code === 11000) {
@@ -74,7 +72,7 @@ router.post("/signup", async (req, res) => {
 
 //  LOGOUT ROUTE (TOP LEVEL)
 router.get("/logout", (req, res) => {
-  res.clearCookie("token").redirect("/");
+  res.clearCookie("token", authCookieOptions).redirect("/");
 });
 
 // Logged in user's profile
