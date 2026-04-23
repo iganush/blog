@@ -1,77 +1,156 @@
 # Blogify
 
-Blogify is an Express + EJS blogging platform with authentication, social follow features, comments, likes, and Cloudinary-powered cover image uploads.
+Blogify is a full-stack social blogging app built with Express, EJS, MongoDB, and JWT cookie authentication. Users can sign up, publish posts with cover images, like and comment on blogs, follow other writers, and browse a searchable home feed with category filters and trending content.
 
-## What's Included
+## Features
 
-- Cloudinary integration for blog cover images
-- Demo seed script for 5 users and 25 posts
-- Production-friendly image deletion support
-- JWT secret support through environment variables
+- Email/password signup and signin with JWT-based auth cookies
+- Create blog posts with categories and optional cover images
+- Like/unlike posts and join discussions through comments
+- Public user profiles with follower/following counts
+- Follow or unfollow other creators from the feed, blog page, or profile page
+- Search across blogs and users from the home feed
+- Category-based filtering and trending posts sidebar
+- Cloudinary image uploads in production-ready setups, with local file fallback for development
+- Demo content seeding script for quickly populating the app
+
+## Tech Stack
+
+- Node.js
+- Express 5
+- EJS
+- MongoDB with Mongoose
+- JWT
+- Multer
+- Cloudinary
+
+## Project Structure
+
+```text
+.
+|-- index.js                  # Main app entrypoint
+|-- routes/                   # User and blog routes
+|-- models/                   # Mongoose models
+|-- middlewares/              # Authentication middleware
+|-- services/                 # Auth, media, and Cloudinary helpers
+|-- views/                    # EJS templates
+|-- public/                   # Static assets and local uploads
+`-- scripts/seedDemoContent.js
+```
+
+## Requirements
+
+- Node.js 18+
+- MongoDB database URI
 
 ## Environment Variables
 
-Create a `.env` file in the project root with values like these:
+Create a `.env` file in the project root.
 
 ```env
-PORT=3000
-MONGODB_URL=your_mongodb_connection_string
-JWT_SECRET=choose_a_strong_secret
-CLOUDINARY_CLOUD_NAME=your_cloud_name
-CLOUDINARY_API_KEY=your_api_key
-CLOUDINARY_API_SECRET=your_api_secret
+PORT=3001
+MONGODB_URL=mongodb://127.0.0.1:27017/blogify
+JWT_SECRET=replace-this-with-a-secure-secret
+
+# Optional: enables Cloudinary uploads instead of local file storage
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
 ```
 
-Cloudinary is used automatically when all three Cloudinary variables are present. If they are missing, the app falls back to local uploads inside `public/uploads`.
+### Notes
 
-## Install
+- `MONGODB_URL` is required.
+- `JWT_SECRET` should always be set explicitly, even though the app has a fallback.
+- If Cloudinary credentials are not provided, blog cover images are stored under `public/uploads/`.
+- Local uploads are convenient for development, but they are not durable on many cloud/serverless platforms.
+
+## Installation
 
 ```bash
 npm install
 ```
 
-## Run Locally
+## Running Locally
+
+Start the development server:
 
 ```bash
 npm run dev
 ```
 
-## Seed Demo Data
+Or start without nodemon:
 
-This command creates:
+```bash
+npm start
+```
 
-- 5 demo user accounts
-- 25 sample blog posts
-- likes, follows, and a few comments for a fuller homepage
+Open:
 
-Run:
+```text
+http://localhost:3001
+```
+
+## Demo Data
+
+Populate the app with sample users, posts, follows, likes, and comments:
 
 ```bash
 npm run seed:demo
 ```
 
-The seed is safe to re-run for the demo accounts listed below. It recreates only those demo users and their related demo content.
+The seed script:
 
-## Demo Login Credentials
+- creates demo users
+- creates demo posts across multiple categories
+- wires follower relationships
+- adds likes and comments
+- removes old seeded demo content before recreating it
 
-Use these demo accounts to sign in after running the seed script:
+## Available Scripts
 
-| Name | Email / Login ID | Password |
-| --- | --- | --- |
-| Aarav Kapoor | `aarav.writer@blogify.demo` | `Aarav@123` |
-| Siya Mehta | `siya.codes@blogify.demo` | `Siya@123` |
-| Kabir Malhotra | `kabir.growth@blogify.demo` | `Kabir@123` |
-| Mira Sen | `mira.life@blogify.demo` | `Mira@123` |
-| Rohan Iyer | `rohan.notes@blogify.demo` | `Rohan@123` |
+- `npm run dev` - start the app with nodemon
+- `npm start` - run the app with Node
+- `npm run seed:demo` - seed demo users and blog content
 
-## Scripts
+## Core Routes
 
-- `npm run dev` starts the app with Nodemon
-- `npm start` starts the app normally
-- `npm run seed:demo` creates demo users and posts
+- `/` - home feed with search, filters, suggestions, and trending posts
+- `/user/signup` - create an account
+- `/user/signin` - sign in
+- `/user/me` - redirect to the logged-in user's profile
+- `/user/profile/:id` - public profile page
+- `/blog/add-new` - create a new post
+- `/blog/:Id` - blog detail page
 
-## Notes
+## Production Note
 
-- Cover images uploaded from the app are stored on Cloudinary when configured.
-- Demo posts also try to upload generated SVG cover images to Cloudinary during seeding.
-- If Cloudinary upload fails while seeding, the posts are still created without remote cover images.
+The app starts its HTTP listener from `index.js` only when `NODE_ENV` is not `production`. That works well for local development, but if you run `node index.js` with `NODE_ENV=production`, the process will not call `app.listen()`.
+
+This usually means the project is intended to:
+
+- run locally with `NODE_ENV` unset or non-production
+- export the Express app for a hosting platform that handles the server process separately
+
+Also note that `server.js` is not the main application entry used by the npm scripts.
+
+## Screens in the App
+
+- Social home feed
+- Blog details with likes, comments, and author follow action
+- User profile pages
+- Signup and signin pages
+- Add blog form
+
+## Future Improvements
+
+- Edit blog posts
+- Password hashing with `bcrypt`
+- Rich text editor for posts
+- Image optimization and validation improvements
+- Automated tests
+- Pagination or infinite scrolling
+
+## License
+
+ISC
