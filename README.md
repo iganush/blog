@@ -1,26 +1,31 @@
 # Blogify
 
-Blogify is a full-stack social blogging app built with Express, EJS, MongoDB, and JWT cookie authentication. Users can sign up, publish posts with cover images, like and comment on blogs, follow other writers, and browse a searchable home feed with category filters and trending content.
+Blogify is a simple social blogging app I built with Node.js, Express, EJS, and MongoDB. It lets users create an account, write posts, upload cover images, like and comment on posts, follow other writers, and browse blogs from the home feed.
 
-## Features
+The project is mostly meant as a full-stack practice app, so it covers the usual pieces of a small web application: authentication, database models, server-side views, file uploads, user profiles, and a few social features.
 
-- Email/password signup and signin with JWT-based auth cookies
-- Create blog posts with categories and optional cover images
-- Like/unlike posts and join discussions through comments
-- Public user profiles with follower/following counts
-- Follow or unfollow other creators from the feed, blog page, or profile page
-- Search across blogs and users from the home feed
-- Category-based filtering and trending posts sidebar
-- Cloudinary image uploads in production-ready setups, with local file fallback for development
-- Demo content seeding script for quickly populating the app
+## What It Can Do
 
-## Tech Stack
+- Sign up, sign in, and log out with cookie-based JWT authentication
+- Create blog posts with a title, body, category, and optional cover image
+- Like or unlike posts
+- Comment on blog posts
+- View public user profiles
+- Follow and unfollow other users
+- Search for blogs and users from the home page
+- Filter posts by category
+- Show trending posts based on likes
+- Store uploaded images locally during development
+- Use Cloudinary for image uploads when credentials are provided
+- Seed the database with demo users, posts, follows, likes, and comments
+
+## Tech Used
 
 - Node.js
-- Express 5
+- Express
 - EJS
-- MongoDB with Mongoose
-- JWT
+- MongoDB and Mongoose
+- JSON Web Tokens
 - Multer
 - Cloudinary
 
@@ -28,129 +33,96 @@ Blogify is a full-stack social blogging app built with Express, EJS, MongoDB, an
 
 ```text
 .
-|-- index.js                  # Main app entrypoint
-|-- routes/                   # User and blog routes
-|-- models/                   # Mongoose models
+|-- index.js                  # Main Express app
+|-- routes/                   # Blog and user routes
+|-- models/                   # Mongoose schemas
 |-- middlewares/              # Authentication middleware
-|-- services/                 # Auth, media, and Cloudinary helpers
-|-- views/                    # EJS templates
-|-- public/                   # Static assets and local uploads
+|-- services/                 # Auth and image upload helpers
+|-- views/                    # EJS pages and partials
+|-- public/                   # Static files and local uploads
 `-- scripts/seedDemoContent.js
 ```
 
-## Requirements
+## Getting Started
 
-- Node.js 18+
-- MongoDB database URI
-
-## Environment Variables
-
-Create a `.env` file in the project root.
-
-```env
-PORT=3001
-MONGODB_URL=mongodb://127.0.0.1:27017/blogify
-JWT_SECRET=replace-this-with-a-secure-secret
-
-# Optional: enables Cloudinary uploads instead of local file storage
-CLOUDINARY_CLOUD_NAME=
-CLOUDINARY_API_KEY=
-CLOUDINARY_API_SECRET=
-```
-
-### Notes
-
-- `MONGODB_URL` is required.
-- `JWT_SECRET` should always be set explicitly, even though the app has a fallback.
-- If Cloudinary credentials are not provided, blog cover images are stored under `public/uploads/`.
-- Local uploads are convenient for development, but they are not durable on many cloud/serverless platforms.
-
-## Installation
+Install the dependencies:
 
 ```bash
 npm install
 ```
 
-## Running Locally
+Create a `.env` file in the root folder:
 
-Start the development server:
+```env
+PORT=3001
+MONGODB_URL=mongodb://127.0.0.1:27017/blogify
+JWT_SECRET=your-secret-key
+
+# Optional, only needed if you want Cloudinary uploads
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+```
+
+`MONGODB_URL` is required. `JWT_SECRET` should also be set, even though the app has a fallback value.
+
+## Running the App
+
+For development:
 
 ```bash
 npm run dev
 ```
 
-Or start without nodemon:
+For a normal Node start:
 
 ```bash
 npm start
 ```
 
-Open:
+Then open:
 
 ```text
 http://localhost:3001
 ```
 
-## Demo Data
+## Demo Content
 
-Populate the app with sample users, posts, follows, likes, and comments:
+If you want some sample data to test the feed, profiles, likes, comments, and follows, run:
 
 ```bash
 npm run seed:demo
 ```
 
-The seed script:
+The seed script clears old demo content first, then creates fresh demo users and posts.
 
-- creates demo users
-- creates demo posts across multiple categories
-- wires follower relationships
-- adds likes and comments
-- removes old seeded demo content before recreating it
+## Main Pages
 
-## Available Scripts
-
-- `npm run dev` - start the app with nodemon
-- `npm start` - run the app with Node
-- `npm run seed:demo` - seed demo users and blog content
-
-## Core Routes
-
-- `/` - home feed with search, filters, suggestions, and trending posts
-- `/user/signup` - create an account
-- `/user/signin` - sign in
-- `/user/me` - redirect to the logged-in user's profile
+- `/` - home feed with search, categories, suggested users, and trending posts
+- `/user/signup` - signup page
+- `/user/signin` - signin page
+- `/user/me` - redirects to the logged-in user's profile
 - `/user/profile/:id` - public profile page
-- `/blog/add-new` - create a new post
-- `/blog/:Id` - blog detail page
+- `/blog/add-new` - create a new blog post
+- `/blog/:Id` - blog detail page with likes and comments
 
-## Production Note
+## Image Uploads
 
-The app starts its HTTP listener from `index.js` only when `NODE_ENV` is not `production`. That works well for local development, but if you run `node index.js` with `NODE_ENV=production`, the process will not call `app.listen()`.
+If Cloudinary credentials are available in `.env`, cover images are uploaded to Cloudinary. If they are not set, the app saves uploads inside `public/uploads/`.
 
-This usually means the project is intended to:
+Local uploads are fine while developing, but they may disappear on some hosting platforms. For deployment, Cloudinary is the safer option.
 
-- run locally with `NODE_ENV` unset or non-production
-- export the Express app for a hosting platform that handles the server process separately
+## Notes
 
-Also note that `server.js` is not the main application entry used by the npm scripts.
+- The app uses `index.js` as the main entry file.
+- `server.js` is present, but the npm scripts run `index.js`.
+- In production mode, `index.js` exports the Express app instead of starting the listener directly. This is useful for platforms that handle the server process themselves.
 
-## Screens in the App
-
-- Social home feed
-- Blog details with likes, comments, and author follow action
-- User profile pages
-- Signup and signin pages
-- Add blog form
-
-## Future Improvements
+## Things I Might Add Later
 
 - Edit blog posts
-- Password hashing with `bcrypt`
-- Rich text editor for posts
-- Image optimization and validation improvements
+- Better form validation
+- Rich text editing
+- More image checks before upload
 - Automated tests
 - Pagination or infinite scrolling
-
-## License
-
-ISC
