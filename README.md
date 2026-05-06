@@ -118,13 +118,3 @@ Local uploads are fine while developing, but they may disappear on some hosting 
 - `server.js` is present, but the npm scripts run `index.js`.
 - In production mode, `index.js` exports the Express app instead of starting the listener directly. This is useful for platforms that handle the server process themselves.
 
-## Things I Might Add Later
-
-- Edit blog posts
-- Better form validation
-- Rich text editing
-- More image checks before upload
-- Automated tests
-- Pagination or infinite scrolling
-
-create a flow for rate limit 
