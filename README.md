@@ -112,9 +112,3 @@ If Cloudinary credentials are available in `.env`, cover images are uploaded to 
 
 Local uploads are fine while developing, but they may disappear on some hosting platforms. For deployment, Cloudinary is the safer option.
 
-## Notes
-
-- The app uses `index.js` as the main entry file.
-- `server.js` is present, but the npm scripts run `index.js`.
-- In production mode, `index.js` exports the Express app instead of starting the listener directly. This is useful for platforms that handle the server process themselves.
-
